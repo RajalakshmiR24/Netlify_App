@@ -49,6 +49,7 @@ dev_dependencies:
   flutter_lints: ^3.0.0
   shared_preferences: ^2.2.3
   http: ^1.2.1
+  provider: ^6.1.2
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -64,13 +65,9 @@ flutter:
     - assets/signin_signup 2.png
     - assets/profile.jpg
     - assets/sale_banner.jpg
-    - assets/houndstooth_side_zipper.jpg
-    - assets/table_wood_pine.jpg
-    - assets/lamp.jpg
-    - assets/ovora_design_table_teak.jpg
-    - assets/nancy_chair.jpg
-    - assets/daisy_chair.jpg
     - assets/top.jpg
+    - assets/empty_cart.png
+    - assets/empty_fav.png
 
   # To add assets to your application, add an assets section, like this:
   # assets:

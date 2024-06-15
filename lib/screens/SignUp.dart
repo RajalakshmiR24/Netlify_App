@@ -17,8 +17,7 @@ class SignUpScreen extends StatelessWidget {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-  final TextEditingController confirmPasswordController =
-  TextEditingController();
+  final TextEditingController confirmPasswordController = TextEditingController();
   final TextEditingController phoneController = TextEditingController();
   final TextEditingController addressController = TextEditingController();
 
@@ -149,7 +148,7 @@ class SignUpScreen extends StatelessWidget {
                 const SizedBox(height: 16),
                 _buildTextField(
                   controller: addressController,
-                  label: 'Address',
+                  label: 'Address (Optional)',
                   icon: Icons.home,
                 ),
                 const SizedBox(height: 30),

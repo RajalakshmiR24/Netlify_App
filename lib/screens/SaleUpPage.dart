@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
+import 'package:nestify_app/AppBar.dart';
 import 'package:nestify_app/models/product_model.dart';
-import 'dart:convert';
+import 'package:nestify_app/screens/product_details.dart';
+import 'package:nestify_app/services/api_products.dart';
 
 class SaleUpPage extends StatefulWidget {
   @override
@@ -9,43 +10,13 @@ class SaleUpPage extends StatefulWidget {
 }
 
 class _SaleUpPageState extends State<SaleUpPage> {
-  late Future<Map<String, List<Product>>> futureProductsByCategory;
+  late Future<List<Product>> futureFurnitureProducts = fetchFurnitureProducts();
 
-  Future<Map<String, List<Product>>> fetchProducts() async {
-    final response = await http.get(Uri.parse('https://dummyjson.com/products'));
-
-    if (response.statusCode == 200) {
-      final List<dynamic> productJson = json.decode(response.body)['products'];
-      List<Product> products = productJson.map((json) => Product.fromJson(json)).toList();
-
-      Map<String, List<Product>> productsByCategory = {};
-      for (var product in products) {
-        if (!productsByCategory.containsKey(product.category)) {
-          productsByCategory[product.category] = [];
-        }
-        productsByCategory[product.category]!.add(product);
-      }
-      return productsByCategory;
-    } else {
-      throw Exception('Failed to load products');
-    }
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    futureProductsByCategory = fetchProducts();
-  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        centerTitle: true,
-        titleTextStyle: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
-      ),
+      appBar: CustomAppBar(),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -76,24 +47,20 @@ class _SaleUpPageState extends State<SaleUpPage> {
                     ),
                   ),
                   const SizedBox(height: 20),
-                  FutureBuilder<Map<String, List<Product>>>(
-                    future: futureProductsByCategory,
+                  FutureBuilder<List<Product>>(
+                    future: futureFurnitureProducts,
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return const Center(child: CircularProgressIndicator());
                       } else if (snapshot.hasError) {
                         return Center(child: Text('Error: ${snapshot.error}'));
                       } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                        return const Center(child: Text('No products found.'));
+                        return const Center(child: Text('No furniture products found.'));
                       } else {
-                        final productsByCategory = snapshot.data!;
-                        return Column(
-                          children: productsByCategory.entries.map((entry) {
-                            return CategorySection(
-                              title: entry.key,
-                              items: entry.value,
-                            );
-                          }).toList(),
+                        final furnitureProducts = snapshot.data!;
+                        return CategorySection(
+                          title: 'Furniture',
+                          items: furnitureProducts,
                         );
                       }
                     },
@@ -141,38 +108,50 @@ class _CategorySectionState extends State<CategorySection> {
                   showAll = !showAll;
                 });
               },
-              child: Text(showAll ? 'Show less' : 'Show all >', style: const TextStyle(color: Colors.black),),
+              child: Text(showAll ? 'Show less' : 'Show all >', style: const TextStyle(color: Colors.black)),
             ),
           ],
         ),
         const SizedBox(height: 10),
         Column(
-          children: itemsToShow
-              .map((item) => ListTile(
-            leading: Image.network(
-              item.thumbnail,
-              width: 50,
-              height: 50,
-              fit: BoxFit.cover,
-            ),
-            title: Text(item.title),
-            subtitle: Text('\$${item.price}'),
-            trailing: ElevatedButton(
-              onPressed: () {},
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.black,
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
-              ),
-              child: const Text('Shop'),
-            ),
-          ))
-              .toList(),
+          children: itemsToShow.map((item) => buildProductTile(context, item)).toList(),
         ),
         const SizedBox(height: 20), // Add spacing between categories
       ],
     );
   }
+
+  Widget buildProductTile(BuildContext context, Product item) {
+    return ListTile(
+      leading: Image.network(
+        item.thumbnail,
+        width: 50,
+        height: 50,
+        fit: BoxFit.cover,
+      ),
+      title: Text(item.title),
+      subtitle: Text('\$${item.price}'),
+      trailing: ElevatedButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ProductPage(productId: item.id), // Navigate to ProductPage with productId
+            ),
+          );
+        },
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.black,
+          foregroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8.0),
+          ),
+        ),
+        child: const Text('Shop'),
+      ),
+    );
+  }
 }
+
+
+

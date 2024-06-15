@@ -113,15 +113,3 @@ class SignInScreen extends StatelessWidget {
   }
 }
 
-void main() {
-  runApp(MaterialApp(
-    home: SignInScreen(),
-    theme: ThemeData(
-      inputDecorationTheme: InputDecorationTheme(
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8.0),
-        ),
-      ),
-    ),
-  ));
-}

@@ -1,17 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:nestify_app/AppBar.dart';
+import 'package:nestify_app/models/product_model.dart';
+import 'package:nestify_app/screens/FavouritePage.dart';
 import 'package:nestify_app/screens/SaleUpPage.dart';
+import 'package:nestify_app/screens/ShoppingCartPage.dart';
+import 'package:nestify_app/services/api_products.dart';
 
 class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.white, // Change AppBar color to white
-        iconTheme: const IconThemeData(color: Colors.black), // Change AppBar icon color to black
-      ),
+      appBar: CustomAppBar(),
       drawer: Drawer(
         child: Container(
-          color: Colors.white, // Set the drawer background color to white
+          color: Colors.white,
           child: ListView(
             padding: EdgeInsets.zero,
             children: <Widget>[
@@ -22,7 +24,7 @@ class HomeScreen extends StatelessWidget {
                   backgroundImage: AssetImage('assets/profile.jpg'),
                 ),
                 decoration: BoxDecoration(
-                  color: Colors.white, // Change DrawerHeader background color to white
+                  color: Colors.white,
                 ),
               ),
               ListTile(
@@ -40,24 +42,17 @@ class HomeScreen extends StatelessWidget {
                 },
               ),
               ListTile(
-                leading: const Icon(Icons.star, color: Colors.black),
-                title: const Text('Editor\'s Picks', style: TextStyle(color: Colors.black)),
+                leading: const Icon(Icons.shopping_bag, color: Colors.black),
+                title: const Text('My Cart', style: TextStyle(color: Colors.black)),
                 onTap: () {
-                  Navigator.pop(context);
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => ShoppingCartPage()));
                 },
               ),
               ListTile(
-                leading: const Icon(Icons.local_offer, color: Colors.black),
-                title: const Text('Top Deals', style: TextStyle(color: Colors.black)),
+                leading: const Icon(Icons.favorite, color: Colors.black),
+                title: const Text('My Favorite', style: TextStyle(color: Colors.black)),
                 onTap: () {
-                  Navigator.pop(context);
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.notifications, color: Colors.black),
-                title: const Text('Notifications', style: TextStyle(color: Colors.black)),
-                onTap: () {
-                  Navigator.pop(context);
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => FavouritePage()));
                 },
               ),
               ListTile(
@@ -82,14 +77,14 @@ class HomeScreen extends StatelessWidget {
                   height: 200,
                   decoration: const BoxDecoration(
                     image: DecorationImage(
-                      image: AssetImage('assets/sale_banner.jpg'), // Replace with your image asset
+                      image: AssetImage('assets/sale_banner.jpg'),
                       fit: BoxFit.cover,
                     ),
                   ),
                 ),
                 Container(
                   height: 200,
-                  color: Colors.black.withOpacity(0.5), // Overlay with semi-transparent black color
+                  color: Colors.black.withOpacity(0.5),
                 ),
                 Positioned(
                   left: 16,
@@ -109,92 +104,105 @@ class HomeScreen extends StatelessWidget {
                           );
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.black, // background color
-                          foregroundColor: Colors.white, // foreground color
+                          backgroundColor: Colors.black,
+                          foregroundColor: Colors.white,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8.0),
                           ),
                         ),
                         child: const Text('Shop now'),
                       ),
-
                     ],
                   ),
                 ),
               ],
             ),
             // New Arrivals
-        Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            children: <Widget>[
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
                 children: <Widget>[
-                  const Text('New Arrivals', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                  TextButton(onPressed: () {}, child: const Text('Show all', style: TextStyle(color: Colors.black),)),
-                ],
-              ),
-              SizedBox(
-                height: 150,
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 12.0), // Add padding here if needed
-                  child: ListView(
-                    scrollDirection: Axis.horizontal,
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
-                      _buildItemCard('Nancy Chair', '\$29.00', 'assets/nancy_chair.jpg'),
-                      _buildItemCard('Table Wood Pine', '\$29.00', 'assets/table_wood_pine.jpg'),
-                      _buildItemCard('Daisy Chair', '\$29.00', 'assets/daisy_chair.jpg'),
-                      _buildItemCard('Table Wood Pine', '\$29.00', 'assets/table_wood_pine.jpg'),
-                      _buildItemCard('Daisy Chair', '\$29.00', 'assets/daisy_chair.jpg'),
+                      const Text('New Arrivals', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                      TextButton(onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => SaleUpPage()),
+                        );
+                      }, child: const Text('Show all', style: TextStyle(color: Colors.black))),
                     ],
                   ),
-                ),
-              ),
-            ],
-          ),
-        ),
+                  FutureBuilder<List<Product>>(
+                    future: fetchFurnitureProducts(),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(child: CircularProgressIndicator());
+                      } else if (snapshot.hasError) {
+                        return Center(child: Text('Error: ${snapshot.error}'));
+                      } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                        return const Center(child: Text('No products found'));
+                      }
 
-        // Best Sellers
+                      List<Product> newArrivals = snapshot.data!;
+
+                      return SizedBox(
+                        height: 150,
+                        child: ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: newArrivals.length,
+                          itemBuilder: (context, index) {
+                            return _buildItemCard(newArrivals[index]);
+                          },
+                        ),
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ),
+            // Best Sellers
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
                   const Text('Best Sellers', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                  TextButton(onPressed: () {}, child: const Text('Show all', style: TextStyle(color: Colors.black))),
+                  TextButton(onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => SaleUpPage()),
+                    );
+                  }, child: const Text('Show all', style: TextStyle(color: Colors.black))),
                 ],
               ),
             ),
-            ListView(
-              physics: const NeverScrollableScrollPhysics(),
-              shrinkWrap: true,
-              children: <Widget>[
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: _buildVerticalItemCard('Houndstooth Side Zipper', '\$29.00', 'assets/houndstooth_side_zipper.jpg'),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: _buildVerticalItemCard('Ovora Design Table Teak', '\$29.00', 'assets/ovora_design_table_teak.jpg'),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: _buildVerticalItemCard('Lamp Chair', '\$29.00', 'assets/lamp.jpg'),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: _buildVerticalItemCard('Houndstooth Side Zipper', '\$29.00', 'assets/houndstooth_side_zipper.jpg'),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: _buildVerticalItemCard('Ovora Design Table Teak', '\$29.00', 'assets/ovora_design_table_teak.jpg'),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: _buildVerticalItemCard('Lamp Chair', '\$29.00', 'assets/lamp.jpg'),
-                ),
-              ],
+            FutureBuilder<List<Product>>(
+              future: fetchBestSellers(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                } else if (snapshot.hasError) {
+                  return Center(child: Text('Error: ${snapshot.error}'));
+                } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                  return const Center(child: Text('No products found'));
+                }
+
+                List<Product> bestSellers = snapshot.data!;
+
+                return ListView.builder(
+                  physics: const NeverScrollableScrollPhysics(),
+                  shrinkWrap: true,
+                  itemCount: bestSellers.length,
+                  itemBuilder: (context, index) {
+                    return Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: _buildVerticalItemCard(bestSellers[index]),
+                    );
+                  },
+                );
+              },
             ),
           ],
         ),
@@ -202,7 +210,7 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildItemCard(String title, String price, String imagePath) {
+  Widget _buildItemCard(Product product) {
     return Container(
       width: 120,
       margin: const EdgeInsets.only(right: 16.0),
@@ -210,27 +218,25 @@ class HomeScreen extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           Container(
-            height: 80,
+            height: 70,
             decoration: BoxDecoration(
               image: DecorationImage(
-                image: AssetImage(imagePath),
+                image: NetworkImage(product.thumbnail),
                 fit: BoxFit.cover,
               ),
               borderRadius: BorderRadius.circular(8.0),
             ),
           ),
-          const SizedBox(height: 8),
-          Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 4),
-          Text(price, style: const TextStyle(fontSize: 16, color: Colors.grey)),
+          const SizedBox(height: 3),
+          Text(product.title, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+          Text('\$${product.price}', style: const TextStyle(fontSize: 12, color: Colors.grey)),
         ],
       ),
     );
   }
 
-  Widget _buildVerticalItemCard(String title, String price, String imagePath) {
+  Widget _buildVerticalItemCard(Product product) {
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: 8.0),
       child: Row(
         children: <Widget>[
           Container(
@@ -238,7 +244,7 @@ class HomeScreen extends StatelessWidget {
             height: 80,
             decoration: BoxDecoration(
               image: DecorationImage(
-                image: AssetImage(imagePath),
+                image: NetworkImage(product.thumbnail),
                 fit: BoxFit.cover,
               ),
               borderRadius: BorderRadius.circular(8.0),
@@ -248,9 +254,9 @@ class HomeScreen extends StatelessWidget {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              Text(product.title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
               const SizedBox(height: 4),
-              Text(price, style: const TextStyle(fontSize: 16, color: Colors.grey)),
+              Text('\$${product.price}', style: const TextStyle(fontSize: 16, color: Colors.grey)),
             ],
           ),
         ],
@@ -258,4 +264,5 @@ class HomeScreen extends StatelessWidget {
     );
   }
 }
+
 
