@@ -10,13 +10,13 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       iconTheme: const IconThemeData(color: Colors.black),
       actions: <Widget>[
         IconButton(
-          icon: Icon(Icons.shopping_bag_outlined, color: Colors.black),
+          icon: const Icon(Icons.shopping_bag_outlined, color: Colors.black),
           onPressed: () {
-            Navigator.push(context, MaterialPageRoute(builder: (context) => ShoppingCartPage()));
+            Navigator.push(context, MaterialPageRoute(builder: (context) => const ShoppingCartPage()));
           },
         ),
         IconButton(
-          icon: Icon(Icons.favorite, color: Colors.red),
+          icon: const Icon(Icons.favorite, color: Colors.red),
           onPressed: () {
             Navigator.push(context, MaterialPageRoute(builder: (context) => FavouritePage()));
           },
@@ -26,6 +26,6 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   }
 
   @override
-  Size get preferredSize => Size.fromHeight(kToolbarHeight);
+  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 }
 

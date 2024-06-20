@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:nestify_app/AppBar.dart';
 import 'package:nestify_app/models/product_model.dart';
+import 'package:nestify_app/screens/ShoppingCartPage.dart';
 import 'package:nestify_app/services/api_products.dart';
+import 'package:nestify_app/screens/FavouritePage.dart'; // Add this import
 
 class ProductPage extends StatefulWidget {
   final int productId;
@@ -10,25 +12,26 @@ class ProductPage extends StatefulWidget {
   _ProductPageState createState() => _ProductPageState();
 }
 
-bool _isFavorite = false;
-
 class _ProductPageState extends State<ProductPage> {
   late Future<Product> _productFuture;
   late Future<List<Product>> _furnitureProductsFuture;
   String? _mainImageUrl;
+  bool _isFavorite = false;
 
   @override
   void initState() {
     super.initState();
     _productFuture = fetchProduct(widget.productId);
     _furnitureProductsFuture = fetchFurnitureProducts();
+    _isFavorite = favoriteProducts.any((product) => product.id == widget.productId);
   }
 
   void _addToCart(Product product) {
+    ShoppingCart().addToCart(product); // Add product to the cart
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('${product.title} added to cart'),
-        duration: const Duration(seconds: 2),
+        duration: const Duration(seconds: 1),
         backgroundColor: Colors.green,
         behavior: SnackBarBehavior.floating,
         margin: const EdgeInsets.all(20.0),
@@ -40,13 +43,24 @@ class _ProductPageState extends State<ProductPage> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('Buying ${product.title} now'),
-        duration: const Duration(seconds: 2),
+        duration: const Duration(seconds: 1),
         backgroundColor: Colors.blueAccent,
         behavior: SnackBarBehavior.floating,
         margin: const EdgeInsets.all(20.0),
-
       ),
     );
+  }
+
+  void _toggleFavorite(Product product) {
+    setState(() {
+      _isFavorite = !_isFavorite;
+      if (_isFavorite) {
+        favoriteProducts.add(product);
+      } else {
+        favoriteProducts.removeWhere((item) => item.id == product.id);
+      }
+      FavouritePageState.updateFavorites(); // Notify FavouritePage to update
+    });
   }
 
   Widget _buildColorOption(Color color) {
@@ -113,6 +127,7 @@ class _ProductPageState extends State<ProductPage> {
 
   @override
   Widget build(BuildContext context) {
+    double screenWidth = MediaQuery.of(context).size.width;
     return Scaffold(
       appBar: CustomAppBar(),
       body: FutureBuilder<Product>(
@@ -140,7 +155,7 @@ class _ProductPageState extends State<ProductPage> {
                         children: [
                           Image.network(
                             _mainImageUrl!,
-                            height: 400,
+                            height: screenWidth > 600 ? 500 : 400,
                             width: double.infinity,
                             fit: BoxFit.cover,
                           ),
@@ -154,9 +169,7 @@ class _ProductPageState extends State<ProductPage> {
                                 size: 32,
                               ),
                               onPressed: () {
-                                setState(() {
-                                  _isFavorite = !_isFavorite;
-                                });
+                                _toggleFavorite(product);
                               },
                             ),
                           ),
@@ -194,7 +207,7 @@ class _ProductPageState extends State<ProductPage> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          '\$${product.price.toStringAsFixed(2)}',
+                          '\₹${product.price.toStringAsFixed(2)}',
                           style: const TextStyle(
                             fontSize: 32,
                             fontWeight: FontWeight.bold,

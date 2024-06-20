@@ -12,7 +12,6 @@ class SaleUpPage extends StatefulWidget {
 class _SaleUpPageState extends State<SaleUpPage> {
   late Future<List<Product>> futureFurnitureProducts = fetchFurnitureProducts();
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -147,7 +146,7 @@ class _CategorySectionState extends State<CategorySection> {
             borderRadius: BorderRadius.circular(8.0),
           ),
         ),
-        child: const Text('Shop'),
+        child: const Text('Show'),
       ),
     );
   }

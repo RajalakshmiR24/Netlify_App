@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:nestify_app/screens/HomeScreen.dart';
 import 'package:nestify_app/screens/SignUp.dart';
 
 class SignInScreen extends StatelessWidget {
@@ -38,7 +39,7 @@ class SignInScreen extends StatelessWidget {
               const SizedBox(height: 70),
               ElevatedButton(
                 onPressed: () {
-                  // Handle Sign in
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => HomeScreen()));
                   print('Sign in button pressed');
                 },
                 style: ElevatedButton.styleFrom(

@@ -30,20 +30,20 @@ class MyApp extends StatelessWidget {
                   'Stylish \n furniture for \n your home',
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 42,
-                      fontWeight: FontWeight.normal,
-                      fontFamily: 'Times New Roman'
+                    color: Colors.white,
+                    fontSize: 42,
+                    fontWeight: FontWeight.normal,
+                    fontFamily: 'Times New Roman',
                   ),
                 ),
                 const Text(
-                  'Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit... ',
+                  'Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit...',
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 12,
-                      fontWeight: FontWeight.normal,
-                      fontFamily: 'Times New Roman'
+                    color: Colors.white,
+                    fontSize: 12,
+                    fontWeight: FontWeight.normal,
+                    fontFamily: 'Times New Roman',
                   ),
                 ),
                 const Spacer(flex: 40),
